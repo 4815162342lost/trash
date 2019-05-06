@@ -1,0 +1,86 @@
+---
+-  hosts: rhel_based,debian_based
+   vars:
+     user_name : trash
+   tasks:
+     - name: "create trash group"
+       group:
+         gid : 500
+         name : trash_group
+     - name: "Create rhel_group group"
+       group:
+         name : rhel_group
+     - name: "Create my user"
+       user:
+         append : yes
+         comment : 'Trash user'
+         generate_ssh_key : yes
+         groups : trash_group, rhel_group
+         name: '{{ user_name }}'
+         password: "$6$n5i7r.ALFr$WFZwqgMkOCiTgopC9JRDxgdYBrobUUiF0KdOi6rlj.ahb/t63vKsdZ6T0VidZNqzMDwLsjiJ829oXztvews3f1"
+         uid: 500
+     - block:
+         - name: Create vg_apps
+           lvg:
+             pvs : /dev/sdb
+             vg: vg_apps
+         - name: "Create lvm lv_apps-vg_apps"
+           lvol:
+             lv: lv_apps
+             vg: vg_apps
+             size: +100%FREE
+             shrink: no
+           notify:
+             - Create fs xfs
+       when: ansible_os_family == 'RedHat'
+     - block:
+         - name: "Create vg_application"
+           lvg:
+             pvs : /dev/sdb
+             vg: vg_application
+         - name: "Create lvm lv_application-vg_application"
+           lvol:
+             lv: lv_application
+             vg: vg_application
+             size: 50M
+             shrink: no
+           notify:
+             - Create fs ext4 50MB
+       when: ansible_os_family == 'Debian'
+   handlers:
+    - block:
+        - name: Create fs xfs
+          filesystem:
+            dev: /dev/mapper/vg_apps-lv_apps
+            fstype: xfs
+          notify: "Create apps dir"
+        - name: "Create apps dir"
+          file:
+            path: /apps
+            state : directory
+          notify: "Mount apps"
+        - name : "Mount apps"
+          mount:
+            fstype: xfs
+            path: /apps
+            src: /dev/mapper/vg_apps-lv_apps
+            state: mounted
+      when: ansible_os_family == 'RedHat'
+    - block:
+        - name: Create fs ext4 50MB
+          filesystem:
+            dev: /dev/mapper/vg_application-lv_application
+            fstype: ext4
+          notify: "Create application dir"
+        - name: "Create application dir"
+          file:
+            path: /application
+            state : directory
+          notify: "Mount application"
+        - name : "Mount application"
+          mount:
+            fstype: ext4
+            path: /application
+            src: /dev/mapper/vg_application-lv_application
+            state: mounted
+      when: ansible_os_family == 'Debian'
