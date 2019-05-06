@@ -9,7 +9,11 @@
          name : trash_group
      - name: "Create rhel_group group"
        group:
-         name : rhel_group
+         name : "{{ item }}"
+       loop:
+         - rhel_group
+         - rhel2_group
+         - rhel3_group
      - name: "Create my user"
        user:
          append : yes
