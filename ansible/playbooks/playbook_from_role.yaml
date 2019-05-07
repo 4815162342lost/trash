@@ -1,0 +1,5 @@
+---
+- name: Try to run rele
+  hosts: all  
+  roles:
+    - first_role

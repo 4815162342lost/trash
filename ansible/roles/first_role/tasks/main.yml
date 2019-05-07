@@ -1,0 +1,60 @@
+---
+# tasks file for first_role
+- name: copy the test.txt file
+  copy:
+    src: test.txt
+    dest: /tmp/
+    mode: '777'
+- name: copy template.txt on Ubuntu
+  template: 
+    dest: /tmp/
+    src: my_template.txt
+  when: ansible_os_family == 'Debian'
+- name: "create trash group"
+  group:
+    gid : 500
+    name : trash_group
+- name: "Create rhel_group group"
+  group:
+    name : "{{ item }}"
+  loop:
+    - rhel_group
+    - rhel2_group
+    - rhel3_group
+- name: "Create my user"
+  user:
+    append : yes
+    comment : 'Trash user'
+    generate_ssh_key : yes
+    groups : trash_group, rhel_group
+    name: '{{ user_name }}'
+    password: "$6$n5i7r.ALFr$WFZwqgMkOCiTgopC9JRDxgdYBrobUUiF0KdOi6rlj.ahb/t63vKsdZ6T0VidZNqzMDwLsjiJ829oXztvews3f1"
+    uid: 500
+- block:
+    - name: Create vg_apps
+      lvg:
+        pvs : /dev/sdb
+        vg: vg_apps
+    - name: "Create lvm lv_apps-vg_apps"
+      lvol:
+        lv: lv_apps
+        vg: vg_apps
+        size: +100%FREE
+        shrink: no
+      notify:
+        - Create fs xfs
+  when: ansible_os_family == 'RedHat'
+- block:
+    - name: "Create vg_application"
+      lvg:
+        pvs : /dev/sdb
+        vg: vg_application
+    - name: "Create lvm lv_application-vg_application"
+      lvol:
+        lv: lv_application
+        vg: vg_application
+        size: 50M
+        shrink: no
+      notify:
+        - Create fs ext4 50MB
+  when: ansible_os_family == 'Debian'
