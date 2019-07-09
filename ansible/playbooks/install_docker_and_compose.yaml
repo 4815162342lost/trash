@@ -31,15 +31,15 @@
              state: latest
              update_cache: yes
        when: ansible_os_family == 'RedHat' and ansible_distribution_major_version == '7'
-     - name: "Install docker-compose via pip3"
-       pip:
-          executable: pip3
-          name: docker-compose
-       when: ansible_os_family == 'Debian'
-     - name: "Install docker-compose via pip"
-       pip:
-          name: docker-compose
-       when: ansible_os_family == 'RedHat' and ansible_distribution_major_version == '7'
+#     - name: "Install docker-compose via pip3"
+#       pip:
+#          executable: pip3
+#          name: docker-compose
+#       when: ansible_os_family == 'Debian'
+#     - name: "Install docker-compose via pip"
+#       pip:
+#          name: docker-compose
+#       when: ansible_os_family == 'RedHat' and ansible_distribution_major_version == '7'
      - name: "Install compose"
        get_url:
           url: "https://github.com/docker/compose/releases/download/1.24.0/docker-compose-{{ansible_system}}-{{ansible_architecture}}"
