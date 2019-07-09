@@ -1,0 +1,60 @@
+---
+-  hosts: all
+   tasks:
+     - block:
+        - name: "Install required packages via apt"
+          apt:
+             name: ['docker.io', 'python3-docker', 'python3-pip']
+             update_cache: yes
+             state: latest
+       when: ansible_os_family == 'Debian'
+     - block:
+        - name: "Add repo for yum"
+          yum_repository:
+             name: docker
+             description: "Repository for Docker"
+             retries: 5
+             state: present
+             baseurl: https://download.docker.com/linux/centos/7/$basearch/stable
+             gpgkey: https://download.docker.com/linux/centos/gpg
+             gpgcheck: yes
+        - name: 'Install required packages via yum'
+          yum:
+             name: ["yum-utils", 'device-mapper-persistent-data', 'lvm2', 'docker-ce', 'docker-ce-cli', 'containerd.io', 'epel-release']
+             disable_excludes: all
+             state: latest
+             update_cache: yes
+        - name: 'Install pip via yum'
+          yum:
+             name: python-pip
+             disable_excludes: all
+             state: latest
+             update_cache: yes
+       when: ansible_os_family == 'RedHat' and ansible_distribution_major_version == '7'
+     - name: "Install docker-compose via pip3"
+       pip:
+          executable: pip3
+          name: docker-compose
+       when: ansible_os_family == 'Debian'
+     - name: "Install docker-compose via pip"
+       pip:
+          name: docker-compose
+       when: ansible_os_family == 'RedHat' and ansible_distribution_major_version == '7'
+     - name: "Install compose"
+       get_url:
+          url: "https://github.com/docker/compose/releases/download/1.24.0/docker-compose-{{ansible_system}}-{{ansible_architecture}}"
+          dest: /usr/local/bin/docker-compose
+          mode: 744
+     - name: "Start and enable docker"
+       service:
+          name: docker
+          state: started
+          enabled: yes
+# '     - name: "Copy docker-compose file"
+#        copy:
+#           src: /home/ilyas/docker-compose/three_containers.yaml
+#           dest: /etc/docker-compose/
+#      - name: "Run docker compose"
+#        docker_service:
+#           project_src: /etc/docker-compose/
+#           files: three_containers.yaml'
