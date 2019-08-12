@@ -1,8 +1,9 @@
 #!/bin/bash
-#script for make backup of the postgres database
-#criterias: make backup every day except weekends
-#make backup on the first day of the mounth and year and store permanently
-#remove backup automatically older than retention_period variable
+###script for make backup of the postgres database
+###criterias: make backup every day except weekends
+###make backup on the first day of the mounth and year and store permanently
+###remove backup automatically older than retention_period variable
+###store monthly backup in 366 days
 
 #database name
 database_name="bars_web_bb"
@@ -86,3 +87,4 @@ fi
 
 #delete old backups
 find $daily_backup_dir -name '*.dump' -mtime +$retention_period
+find $monthly_backup_dir -name '*.dump' -mtime +366
