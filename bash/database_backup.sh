@@ -1,5 +1,10 @@
 #!/bin/bash
-mkdir /tmp/daily /tmp/monthly /tmp/yearly
+
+#backup stored dir
+daily_backup_dir="/home/backup/backup_db/daily/"
+monthly_backup_dir="/home/backup/backup_db/monthly/"
+yearly_backup_dir="/home/backup/backup_db/yearly/"
+
 #save the current dates to variables
 #day_of_month=`date +%d  -d 'Jan 1 13:34:04 MSK 2019'`
 #day_of_year=`date +%j  -d 'Jan 1 13:34:04 MSK 2019'`
@@ -7,6 +12,7 @@ mkdir /tmp/daily /tmp/monthly /tmp/yearly
 day_of_month=`date +%d`
 day_of_year=`date +%j`
 day_of_week=`date +%u`
+
 
 #keep backups 7 days and geberate backup name
 retention_period=7
@@ -35,7 +41,7 @@ echo "weekends variable: $weekends"
 if [ "$weekends" != "yes" ]
   then
     echo "Starting backup creation..."
-    echo "dump" >>/tmp/daily/$file_name
+    sudo -E -u postgres pg_dump -U web_bb -h 127.0.0.1 -Fc -f $daily_backup_dir
 fi
 
 #make backup if first day of month and weekends, or just copy if not weekends
@@ -44,11 +50,11 @@ if [ "$day_of_month" -eq "1" ]
     echo 'copy first day of month'
   if [ "$weekends" != "yes" ]
     then
-      echo "Copying backup to /tmp/monthly/"
-      cp /tmp/daily/$file_name /tmp/monthly/
+      echo "Copying backup to $monthly_backup_dir"
+      cp $daily_backup_dir$file_name $monthly_backup_dir
   else
     echo "Starting backup creation..."
-    echo "dump" >>/tmp/monthly/$file_name
+    sudo -E -u postgres pg_dump -U web_bb -h 127.0.0.1 -Fc -f $monthly_backup_dir
   fi
 fi
 
@@ -58,13 +64,13 @@ if [ "$day_of_year" == "001" ]
     echo "first day of the year"
     if [ "$weekends" != "yes" ]
       then
-      echo "Copying backup to /tmp/yearly/"
-      cp /tmp/daily/$file_name /tmp/yearly/
+      echo "Copying backup to $yearly_backup_dir"
+      cp $daily_backup_dir$file_name $yearly_backup_dir
     else
       echo "Starting backup creation..."
-      echo "dump" >>/tmp/yearly/$file_name
+      sudo -E -u postgres pg_dump -U web_bb -h 127.0.0.1 -Fc -f $yearly_backup_dir
    fi
 fi
 
 #delete old backups
-find /tmp/daily -name '*.dump' -mtime +$retention_period
+find $daily_backup_dir -name '*.dump' -mtime +$retention_period
