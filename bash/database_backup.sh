@@ -54,7 +54,7 @@ if [ "$weekends" != "yes" ]
     echo "Starting backup creation..."
     sudo -E -u postgres pg_dump -U web_bb -h 127.0.0.1 -Fc -f $daily_backup_dir$database_name$file_name $database_name
     #make rsync
-    rsync-zvh $daily_backup_dir$database_name$file_name $rsync_command_args
+    rsync -zvh $daily_backup_dir$database_name$file_name $rsync_command_args
 fi
 
 #make backup if first day of month and weekends, or just copy if not weekends
