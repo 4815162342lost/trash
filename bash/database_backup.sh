@@ -86,5 +86,5 @@ if [ "$day_of_year" == "001" ]
 fi
 
 #delete old backups
-find $daily_backup_dir -name '*.dump' -mtime +$retention_period
-find $monthly_backup_dir -name '*.dump' -mtime +366
+find $daily_backup_dir -name '*.dump' -mtime +$retention_period -delete
+find $monthly_backup_dir -name '*.dump' -mtime +366 -delete
