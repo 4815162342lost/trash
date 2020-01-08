@@ -34,7 +34,7 @@ if [ "$day_of_week" -eq "1" ] || [ "$day_of_week" -eq "7" ]
   then
     echo 'were weekends, do not make on Sunday or Monday (bacuse we are running script at 03:00 am)'
     weekends="yes"
-    #if Suterday then retention day + 1, if Sunday +2
+    #if Sunday then retention day + 1, if Monday +2
     if [ "$day_of_week" -eq "7" ] 
       then
         retention_period=$(( $retention_period + 1 ))
