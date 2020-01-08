@@ -52,7 +52,7 @@ echo "weekends variable: $weekends"
 if [ "$weekends" != "yes" ]
   then
     echo "Starting backup creation..."
-    sudo -E -u postgres pg_dump -p $database_port -U $database_user -h $datapase_host -Fc -f $daily_backup_dir$database_name$file_name -d $database_name
+    pg_dump -p $database_port -U $database_user -h $datapase_host -Fc -f $daily_backup_dir$database_name$file_name -d $database_name
     #make rsync
     #rsync -zvh $daily_backup_dir$database_name$file_name $rsync_command_args
 fi
@@ -67,7 +67,7 @@ if [ "$day_of_month" -eq "1" ]
       cp $daily_backup_dir$database_name$file_name $monthly_backup_dir
   else
     echo "Starting backup creation..."
-    sudo -E -u postgres pg_dump -p $database_port -U $database_user -h $datapase_host -Fc -f $monthly_backup_dir$database_name$file_name $database_name
+    pg_dump -p $database_port -U $database_user -h $datapase_host -Fc -f $monthly_backup_dir$database_name$file_name $database_name
   fi
 fi
 
@@ -81,7 +81,7 @@ if [ "$day_of_year" == "001" ]
       cp $daily_backup_dir$database_name$file_name $yearly_backup_dir
     else
       echo "Starting backup creation..."
-      sudo -E -u postgres pg_dump -p $database_port -U $database_user -h $datapase_host -Fc -f $yearly_backup_dir$database_name$file_name $database_name
+      pg_dump -p $database_port -U $database_user -h $datapase_host -Fc -f $yearly_backup_dir$database_name$file_name $database_name
    fi
 fi
 
