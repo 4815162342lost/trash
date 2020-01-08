@@ -79,10 +79,13 @@ if [ "$day_of_year" == "001" ]
       then
       echo "Copying backup to $yearly_backup_dir"
       cp $daily_backup_dir$database_name$file_name $yearly_backup_dir
+    elif [ "$weekends" == "yes" ] && [ "$day_of_month" -eq "1" ]
+      then
+      cp $monthly_backup_dir$file_name $yearly_backup_dir
     else
       echo "Starting backup creation..."
       pg_dump -p $database_port -U $database_user -h $datapase_host -Fc -f $yearly_backup_dir$database_name$file_name $database_name
-   fi
+    fi
 fi
 
 #delete old backups
